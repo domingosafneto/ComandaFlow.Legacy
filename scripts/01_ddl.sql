@@ -35,9 +35,6 @@ CREATE TABLE dbo.comanda (
     CONSTRAINT PK_comanda
         PRIMARY KEY CLUSTERED (Id_comanda),
 
-    CONSTRAINT UQ_comanda_Numero
-        UNIQUE (Numero),
-
     CONSTRAINT CK_comanda_Fechamento CHECK (
         (Status = 'A' AND Data_Fechamento IS NULL)
         OR
@@ -57,6 +54,11 @@ GO
 ALTER TABLE dbo.comanda
     ADD CONSTRAINT DF_comanda_Status
         DEFAULT 'A' FOR Status;
+GO
+
+CREATE UNIQUE INDEX UX_comanda_Numero_Aberta
+    ON dbo.comanda (Numero)
+    WHERE Status = 'A';
 GO
 
 PRINT 'Tabela dbo.comanda criada com sucesso.';
@@ -125,8 +127,8 @@ GO
 
 CREATE TABLE dbo.item_comanda (
     Id_item_comanda     bigint          IDENTITY(1,1) NOT NULL,
-    Comanda_Id          bigint          NOT NULL,
-    Produto_Id          bigint          NOT NULL,
+    Id_comanda          bigint          NOT NULL,
+    Id_produto          bigint          NOT NULL,
     Quantidade          int             NOT NULL,
     Valor_Unitario      decimal(10,2)   NOT NULL,
     Valor_Total         AS (
@@ -138,11 +140,11 @@ CREATE TABLE dbo.item_comanda (
         PRIMARY KEY CLUSTERED (Id_item_comanda),
 
     CONSTRAINT FK_item_comanda_comanda
-        FOREIGN KEY (Comanda_Id)
+        FOREIGN KEY (Id_comanda)
         REFERENCES dbo.comanda (Id_comanda),
 
     CONSTRAINT FK_item_comanda_produto
-        FOREIGN KEY (Produto_Id)
+        FOREIGN KEY (Id_produto)
         REFERENCES dbo.produto (Id_produto),
 
     CONSTRAINT CK_item_comanda_Quantidade
@@ -163,13 +165,13 @@ ALTER TABLE dbo.item_comanda
         DEFAULT SYSDATETIME() FOR Data_Hora;
 GO
 
+CREATE INDEX IX_item_comanda_Id_comanda
+    ON dbo.item_comanda (Id_comanda);
+GO
+
+CREATE INDEX IX_item_comanda_Id_produto
+    ON dbo.item_comanda (Id_produto);
+GO
+
 PRINT 'Tabela dbo.item_comanda criada com sucesso.';
-GO
-
-CREATE INDEX IX_item_comanda_Comanda_Id
-    ON dbo.item_comanda (Comanda_Id);
-GO
-
-CREATE INDEX IX_item_comanda_Produto_Id
-    ON dbo.item_comanda (Produto_Id);
 GO

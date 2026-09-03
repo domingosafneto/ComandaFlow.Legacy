@@ -1,0 +1,32 @@
+# Credenciais e configuracoes locais
+/ComandaFlow.Legacy/ConnectionStrings.config
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Saidas de compilacao
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+# Publicacao e testes
+[Pp]ublish/
+*.Publish.xml
+*.pubxml.user
+TestResults/
+
+# Pacotes restauraveis pelo NuGet
+packages/
+
+# Ferramentas e arquivos temporarios
+_ReSharper*/
+*.DotSettings.user
+*.tmp
+*.log
