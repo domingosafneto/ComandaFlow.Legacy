@@ -12,8 +12,8 @@ BEGIN
     PRINT 'Banco selfservice_legacy criado.';
 END
 ELSE
-BEGIN
-    PRINT 'Banco selfservice_legacy ja existe.';
-END
+    BEGIN
+        PRINT 'Banco selfservice_legacy ja existe.';
+    END
 GO
 
