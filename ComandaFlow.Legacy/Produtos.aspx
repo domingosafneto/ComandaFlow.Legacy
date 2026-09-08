@@ -1,4 +1,122 @@
-<%@ Page Title="Produtos" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Produtos.aspx.cs" Inherits="ComandaFlow.Legacy.Produtos" %>
-<asp:Content ID="Body" ContentPlaceHolderID="MainContent" runat="server"><main class="mvp-page"><h1>Cadastro de produtos</h1><asp:Label ID="Mensagem" runat="server" role="status" />
-<div class="panel-mvp"><h2 class="h4"><asp:Literal ID="TituloFormulario" runat="server" Text="Novo produto" /></h2><asp:HiddenField ID="ProdutoId" runat="server"/><div class="row g-3"><div class="col-md-5"><label class="form-label">Descrição</label><asp:TextBox ID="Descricao" runat="server" CssClass="form-control" MaxLength="100"/></div><div class="col-md-3"><label class="form-label">Preço</label><asp:TextBox ID="Valor" runat="server" CssClass="form-control" placeholder="0,00"/></div><div class="col-md-4 d-flex flex-column justify-content-end"><div class="produto-checkbox"><asp:CheckBox ID="PermiteValor" runat="server" Text="Valor informado no lançamento"/></div><div class="produto-checkbox"><asp:CheckBox ID="Ativo" runat="server" Text="Ativo" Checked="true"/></div></div><div class="col-12"><asp:Button ID="Salvar" runat="server" CssClass="btn btn-success" Text="Salvar" OnClick="Salvar_Click"/><asp:Button ID="Cancelar" runat="server" CssClass="btn btn-secondary ms-2" Text="Cancelar" CausesValidation="false" OnClick="Cancelar_Click"/></div></div></div>
-<div class="panel-mvp table-responsive"><table class="table table-striped"><thead><tr><th>Descrição</th><th>Preço</th><th>Valor informado?</th><th>Status</th><th>Ações</th></tr></thead><tbody><asp:Repeater ID="Lista" runat="server" OnItemCommand="Lista_ItemCommand"><ItemTemplate><tr><td><%#: Eval("Descricao") %></td><td><%#: FormatarValor(Eval("ValorUnitario")) %></td><td><%#: (bool)Eval("PermiteValorInformado") ? "Sim" : "Não" %></td><td><%#: (bool)Eval("Ativo") ? "Ativo" : "Inativo" %></td><td><asp:LinkButton runat="server" CssClass="btn btn-sm btn-outline-primary" CommandName="Editar" CommandArgument='<%# Eval("IdProduto") %>'>Editar</asp:LinkButton><asp:LinkButton runat="server" CssClass="btn btn-sm btn-outline-danger ms-1" CommandName="Excluir" CommandArgument='<%# Eval("IdProduto") %>' OnClientClick="return confirm('Excluir este produto?');">Excluir</asp:LinkButton></td></tr></ItemTemplate></asp:Repeater></tbody></table></div></main></asp:Content>
+<%@ Page Title="Produtos"
+    Language="C#"
+    MasterPageFile="~/Site.Master"
+    AutoEventWireup="true"
+    CodeBehind="Produtos.aspx.cs"
+    Inherits="ComandaFlow.Legacy.Produtos" %>
+
+<asp:Content ID="Body"
+    ContentPlaceHolderID="MainContent"
+    runat="server">
+
+    <main class="mvp-page">
+        <h1>Cadastro de produtos</h1>
+
+        <asp:Label ID="Mensagem"
+            runat="server"
+            role="status" />
+
+        <div class="panel-mvp">
+            <h2 class="h4">
+                <asp:Literal ID="TituloFormulario"
+                    runat="server"
+                    Text="Novo produto" />
+            </h2>
+
+            <asp:HiddenField ID="ProdutoId" runat="server" />
+
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label">Descrição</label>
+                    <asp:TextBox ID="Descricao"
+                        runat="server"
+                        CssClass="form-control"
+                        MaxLength="100" />
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Preço</label>
+                    <asp:TextBox ID="Valor"
+                        runat="server"
+                        CssClass="form-control"
+                        placeholder="0,00" />
+                </div>
+
+                <div class="col-md-4 d-flex flex-column justify-content-end">
+                    <div class="produto-checkbox">
+                        <asp:CheckBox ID="PermiteValor"
+                            runat="server"
+                            Text="Valor informado no lançamento" />
+                    </div>
+
+                    <div class="produto-checkbox">
+                        <asp:CheckBox ID="Ativo"
+                            runat="server"
+                            Text="Ativo"
+                            Checked="true" />
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <asp:Button ID="Salvar"
+                        runat="server"
+                        CssClass="btn btn-success"
+                        Text="Salvar"
+                        OnClick="Salvar_Click" />
+
+                    <asp:Button ID="Cancelar"
+                        runat="server"
+                        CssClass="btn btn-secondary ms-2"
+                        Text="Cancelar"
+                        CausesValidation="false"
+                        OnClick="Cancelar_Click" />
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-mvp table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Descrição</th>
+                        <th>Preço</th>
+                        <th>Valor informado?</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <asp:Repeater ID="Lista"
+                        runat="server"
+                        OnItemCommand="Lista_ItemCommand">
+                        <ItemTemplate>
+                            <tr>
+                                <td><%#: Eval("Descricao") %></td>
+                                <td><%#: FormatarValor(Eval("ValorUnitario")) %></td>
+                                <td><%#: (bool)Eval("PermiteValorInformado") ? "Sim" : "Não" %></td>
+                                <td><%#: (bool)Eval("Ativo") ? "Ativo" : "Inativo" %></td>
+                                <td>
+                                    <asp:LinkButton runat="server"
+                                        CssClass="btn btn-sm btn-outline-primary"
+                                        CommandName="Editar"
+                                        CommandArgument='<%# Eval("IdProduto") %>'>
+                                        Editar
+                                    </asp:LinkButton>
+
+                                    <asp:LinkButton runat="server"
+                                        CssClass="btn btn-sm btn-outline-danger ms-1"
+                                        CommandName="Excluir"
+                                        CommandArgument='<%# Eval("IdProduto") %>'
+                                        OnClientClick="return confirm('Excluir este produto?');">
+                                        Excluir
+                                    </asp:LinkButton>
+                                </td>
+                            </tr>
+                        </ItemTemplate>
+                    </asp:Repeater>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+</asp:Content>
