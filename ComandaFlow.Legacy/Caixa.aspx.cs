@@ -1,0 +1,1 @@
+using System; using System.Web.Services; namespace ComandaFlow.Legacy { public partial class Caixa:System.Web.UI.Page { protected void Page_Load(object sender,EventArgs e){} [WebMethod] public static AtendimentoDto Buscar(int numero){return Dados.ObterAberta(numero);} [WebMethod] public static ResultadoDto Fechar(int numero){return Dados.Fechar(numero);} } }

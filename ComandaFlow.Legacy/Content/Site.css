@@ -13,6 +13,20 @@ textarea {
     max-width: 280px;
 }
 
+body { background:#f6f7f9; color:#20242a; }
+.mvp-page { max-width:1050px; margin:2rem auto; }
+.menu-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; }
+.menu-card { background:#fff; border:1px solid #dee2e6; border-radius:12px; padding:1.25rem; color:#20242a; text-decoration:none; box-shadow:0 2px 8px rgba(0,0,0,.04); }
+.menu-card:hover { border-color:#198754; color:#146c43; transform:translateY(-1px); }
+.menu-card span { display:block; color:#6c757d; margin-top:.35rem; }
+.menu-card-button { width:100%; text-align:left; }
+.panel-mvp { background:#fff; border:1px solid #dee2e6; border-radius:12px; padding:1.25rem; margin-bottom:1rem; }
+.status-pill { border-radius:999px; padding:.25rem .65rem; font-size:.82rem; font-weight:600; }
+.status-livre { background:#d1e7dd; color:#0f5132; } .status-uso { background:#fff3cd; color:#664d03; }
+.feedback { min-height:1.5rem; } .money { text-align:right; white-space:nowrap; }
+.table td,.table th { vertical-align:middle; }
+.produto-checkbox input[type="checkbox"] { margin-right: .4rem; }
+
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {
     .body-content {

@@ -119,9 +119,13 @@
     <Content Include="Content\bootstrap.rtl.min.css" />
     <Content Include="Content\Site.css" />
     <Content Include="Default.aspx" />
+    <Content Include="Caixa.aspx" />
+    <Content Include="Comandas.aspx" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Produtos.aspx" />
+    <Content Include="Lancamento.aspx" />
+    <Content Include="Movimentacoes.aspx" />
     <Content Include="Scripts\bootstrap.bundle.js" />
     <Content Include="Scripts\bootstrap.bundle.min.js" />
     <Content Include="Scripts\bootstrap.esm.js" />
@@ -210,6 +214,16 @@
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
     <Compile Include="Dtos\ProdutoDto.cs" />
+    <Compile Include="Dtos\MvpDtos.cs" />
+    <Compile Include="Dados.cs" />
+    <Compile Include="Caixa.aspx.cs"><DependentUpon>Caixa.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
+    <Compile Include="Caixa.aspx.designer.cs"><DependentUpon>Caixa.aspx</DependentUpon></Compile>
+    <Compile Include="Comandas.aspx.cs"><DependentUpon>Comandas.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
+    <Compile Include="Comandas.aspx.designer.cs"><DependentUpon>Comandas.aspx</DependentUpon></Compile>
+    <Compile Include="Lancamento.aspx.cs"><DependentUpon>Lancamento.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
+    <Compile Include="Lancamento.aspx.designer.cs"><DependentUpon>Lancamento.aspx</DependentUpon></Compile>
+    <Compile Include="Movimentacoes.aspx.cs"><DependentUpon>Movimentacoes.aspx</DependentUpon><SubType>ASPXCodeBehind</SubType></Compile>
+    <Compile Include="Movimentacoes.aspx.designer.cs"><DependentUpon>Movimentacoes.aspx</DependentUpon></Compile>
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

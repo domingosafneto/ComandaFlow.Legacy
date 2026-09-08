@@ -1,0 +1,1 @@
+using System; using System.Collections.Generic; using System.Web.Services; namespace ComandaFlow.Legacy { public partial class Movimentacoes:System.Web.UI.Page { protected void Page_Load(object sender,EventArgs e){} [WebMethod] public static List<AtendimentoDto> Listar(){return Dados.Historico();} } }

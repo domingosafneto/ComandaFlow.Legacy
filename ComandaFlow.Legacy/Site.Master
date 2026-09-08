@@ -2,7 +2,7 @@
 
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="pt-BR">
 <head runat="server">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -46,7 +46,11 @@
                 </button>
                 <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item"><a class="nav-link" runat="server" href="~/Contact">Contato</a></li>
+                        <li class="nav-item"><a class="nav-link" runat="server" href="~/Lancamento.aspx">Lançamento</a></li>
+                        <li class="nav-item"><a class="nav-link" runat="server" href="~/Caixa.aspx">Caixa</a></li>
+                        <li class="nav-item"><a class="nav-link" runat="server" href="~/Comandas.aspx">Comandas</a></li>
+                        <li class="nav-item"><a class="nav-link" runat="server" href="~/Produtos.aspx">Produtos</a></li>
+                        <li class="nav-item"><a class="nav-link" runat="server" href="~/Movimentacoes.aspx">Movimentações</a></li>
                     </ul>
                 </div>
             </div>

@@ -1,35 +1,36 @@
-﻿<%@ Page Title="Home Page" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="ComandaFlow.Legacy._Default" %>
+<%@ Page Title="Menu inicial" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="ComandaFlow.Legacy._Default" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
-    
-    <main>
-        <div class="row">
-        
-            <section>
-                <h2>Listagem de produtos</h2>
 
-                <button type="button"
-                        id="btnListarProdutos"
-                        class="btn btn-success">
-                    Listar produtos
-                </button>
-            </section>
-        </div>
-    </main>
+<main class="mvp-page">
+    <h1>Menu inicial</h1><p class="lead">Selecione uma operação do ComandaFlow.</p>
+    <div class="menu-grid">
+
+        <!-- Bloco de "Chamadas raiz": navega direto para a página -->
+        <a class="menu-card" href="Lancamento.aspx"><strong>Registrar consumo</strong><span>Lançar almoço, bebidas e sobremesas</span></a>
+        <a class="menu-card" href="Caixa.aspx"><strong>Caixa / Fechar comanda</strong><span>Consultar total e encerrar atendimento</span></a>
+        <a class="menu-card" href="Produtos.aspx"><strong>Produtos</strong><span>Manter o catálogo</span></a>
+
+        <%-- Bloco de chamadas feitas via JavaScript diferente das demais, simulando a não padronização muitas vezes que acontece num software legado. --%>
+        <button type="button" id="btnComandas" class="menu-card menu-card-button"><strong>Comandas</strong><span>Ver números disponíveis e em uso</span></button>
+        <button type="button" id="btnMovimentacoes" class="menu-card menu-card-button"><strong>Movimentação de Comandas</strong><span>Consultar atendimentos anteriores</span></button>
+    </div>
+</main>
 
 </asp:Content>
 
-<asp:Content ID="Scripts"
-             ContentPlaceHolderID="ScriptsContent"
-             runat="server">
-<script>
-    $(document).ready(function() {
+<asp:Content ID="Scripts" ContentPlaceHolderID="ScriptsContent" runat="server">
+    <script>
+        $(function () {
+            $("#btnComandas").click(function () {
+                window.location.href =
+                    '<%= ResolveUrl("~/Comandas.aspx") %>';
+            });
 
-        $("#btnListarProdutos").click(function() {
-            
-            window.location.href =
-                    '<%= ResolveUrl("~/Produtos.aspx") %>';
+            $("#btnMovimentacoes").click(function () {
+                window.location.href =
+                    '<%= ResolveUrl("~/Movimentacoes.aspx") %>';
             });
         });
-</script>
+    </script>
 </asp:Content>
