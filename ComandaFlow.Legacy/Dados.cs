@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -23,21 +23,10 @@ namespace ComandaFlow.Legacy
         {
             var lista = new List<ProdutoDto>();
 
-            const string sql = @"
-                SELECT
-                    Id_produto,
-                    Descricao,
-                    Valor_Unitario,
-                    Permite_Valor_Informado,
-                    Ativo
-                FROM dbo.produto
-                WHERE @Ativos = 0
-                   OR Ativo = 1
-                ORDER BY Descricao;";
-
             using (var cn = new SqlConnection(Conexao))
-            using (var cmd = new SqlCommand(sql, cn))
+            using (var cmd = new SqlCommand("dbo.pr_ListarProdutos", cn))
             {
+                cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters
                     .Add("@Ativos", SqlDbType.Bit)
                     .Value = somenteAtivos;
@@ -72,55 +61,21 @@ namespace ComandaFlow.Legacy
             bool permite,
             bool ativo)
         {
-            if (string.IsNullOrWhiteSpace(descricao))
-            {
-                throw new ArgumentException("Informe a descrição.");
-            }
-
-            if (!permite && (!valor.HasValue || valor <= 0))
-            {
-                throw new ArgumentException("Informe um preço maior que zero.");
-            }
-
-            const string sql = @"
-                IF @Id = 0
-                BEGIN
-                    INSERT INTO dbo.produto
-                        (Descricao, Valor_Unitario,
-                         Permite_Valor_Informado, Ativo)
-                    VALUES
-                        (@Descricao, @Valor, @Permite, @Ativo);
-
-                    SELECT CAST(SCOPE_IDENTITY() AS bigint);
-                END
-                ELSE
-                BEGIN
-                    UPDATE dbo.produto
-                    SET Descricao = @Descricao,
-                        Valor_Unitario = @Valor,
-                        Permite_Valor_Informado = @Permite,
-                        Ativo = @Ativo
-                    WHERE Id_produto = @Id;
-
-                    SELECT @Id;
-                END;";
-
             using (var cn = new SqlConnection(Conexao))
-            using (var cmd = new SqlCommand(sql, cn))
+            using (var cmd = new SqlCommand("dbo.pr_SalvarProduto", cn))
             {
+                cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add("@Id", SqlDbType.BigInt).Value = id;
                 cmd.Parameters
                     .Add("@Descricao", SqlDbType.VarChar, 100)
-                    .Value = descricao.Trim();
+                    .Value = (object)descricao ?? DBNull.Value;
 
                 SqlParameter parametroValor = cmd.Parameters.Add(
                     "@Valor",
                     SqlDbType.Decimal);
                 parametroValor.Precision = 10;
                 parametroValor.Scale = 2;
-                parametroValor.Value = permite
-                    ? (object)DBNull.Value
-                    : valor.Value;
+                parametroValor.Value = (object)valor ?? DBNull.Value;
 
                 cmd.Parameters
                     .Add("@Permite", SqlDbType.Bit)
@@ -159,17 +114,10 @@ namespace ComandaFlow.Legacy
         {
             var lista = new List<ComandaDto>();
 
-            const string sql = @"
-                SELECT Id_comanda, Numero, Disponivel
-                FROM dbo.Comanda
-                WHERE @Filtro = 'T'
-                   OR (@Filtro = 'D' AND Disponivel = 1)
-                   OR (@Filtro = 'U' AND Disponivel = 0)
-                ORDER BY Numero;";
-
             using (var cn = new SqlConnection(Conexao))
-            using (var cmd = new SqlCommand(sql, cn))
+            using (var cmd = new SqlCommand("dbo.pr_ListarComandas", cn))
             {
+                cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters
                     .Add("@Filtro", SqlDbType.Char, 1)
                     .Value = string.IsNullOrEmpty(filtro) ? "T" : filtro;
@@ -195,14 +143,8 @@ namespace ComandaFlow.Legacy
 
         public static ResultadoDto AbrirComanda(int numero)
         {
-            if (numero <= 0)
-            {
-                throw new ArgumentException(
-                    "Informe um número de comanda válido.");
-            }
-
             using (var cn = new SqlConnection(Conexao))
-            using (var cmd = new SqlCommand("dbo.usp_AbrirComanda", cn))
+            using (var cmd = new SqlCommand("dbo.pr_AbrirComanda", cn))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters
@@ -226,36 +168,14 @@ namespace ComandaFlow.Legacy
             }
         }
 
-        public static AtendimentoDto ObterAberta(int numero)
+        public static AtendimentoDto ObterComandaAberta(int numero)
         {
-            const string sql = @"
-                SELECT
-                    m.Id_MovimentacaoComanda,
-                    c.Numero,
-                    m.Status,
-                    m.DataAbertura,
-                    m.DataFechamento,
-                    COALESCE(SUM(i.Valor_Total), 0) AS Total
-                FROM dbo.Comanda c
-                INNER JOIN dbo.Movimentacao_Comanda m
-                    ON m.Id_comanda = c.Id_comanda
-                LEFT JOIN dbo.item_comanda i
-                    ON i.Id_MovimentacaoComanda =
-                       m.Id_MovimentacaoComanda
-                WHERE c.Numero = @Numero
-                  AND m.Status = 'A'
-                GROUP BY
-                    m.Id_MovimentacaoComanda,
-                    c.Numero,
-                    m.Status,
-                    m.DataAbertura,
-                    m.DataFechamento;";
-
             AtendimentoDto atendimento = null;
 
             using (var cn = new SqlConnection(Conexao))
-            using (var cmd = new SqlCommand(sql, cn))
+            using (var cmd = new SqlCommand("dbo.pr_ObterComandaAberta", cn))
             {
+                cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters
                     .Add("@Numero", SqlDbType.Int)
                     .Value = numero;
@@ -295,21 +215,10 @@ namespace ComandaFlow.Legacy
         {
             var lista = new List<ItemDto>();
 
-            const string sql = @"
-                SELECT
-                    p.Descricao,
-                    i.Quantidade,
-                    i.Valor_Unitario,
-                    i.Valor_Total
-                FROM dbo.item_comanda i
-                INNER JOIN dbo.produto p
-                    ON p.Id_produto = i.Id_produto
-                WHERE i.Id_MovimentacaoComanda = @Id
-                ORDER BY i.Data_Hora, i.Id_item_comanda;";
-
             using (var cn = new SqlConnection(Conexao))
-            using (var cmd = new SqlCommand(sql, cn))
+            using (var cmd = new SqlCommand("dbo.pr_ListarItens", cn))
             {
+                cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add("@Id", SqlDbType.BigInt).Value = id;
                 cn.Open();
 
@@ -337,56 +246,10 @@ namespace ComandaFlow.Legacy
             int quantidade,
             decimal? valorInformado)
         {
-            if (quantidade <= 0)
-            {
-                throw new ArgumentException(
-                    "A quantidade deve ser maior que zero.");
-            }
-
-            const string sql = @"
-                DECLARE @Movimentacao bigint =
-                (
-                    SELECT m.Id_MovimentacaoComanda
-                    FROM dbo.Movimentacao_Comanda m
-                    INNER JOIN dbo.Comanda c
-                        ON c.Id_comanda = m.Id_comanda
-                    WHERE c.Numero = @Numero
-                      AND m.Status = 'A'
-                );
-
-                IF @Movimentacao IS NULL
-                    THROW 50002, 'Comanda não está aberta.', 1;
-
-                DECLARE @Permite bit;
-                DECLARE @Valor decimal(10,2);
-
-                SELECT
-                    @Permite = Permite_Valor_Informado,
-                    @Valor = Valor_Unitario
-                FROM dbo.produto
-                WHERE Id_produto = @Produto
-                  AND Ativo = 1;
-
-                IF @Permite IS NULL
-                    THROW 50003, 'Produto inválido ou inativo.', 1;
-
-                IF @Permite = 1
-                    SET @Valor = @Informado;
-
-                IF @Valor IS NULL OR @Valor <= 0
-                    THROW 50004, 'Informe um valor maior que zero.', 1;
-
-                INSERT INTO dbo.item_comanda
-                    (Id_MovimentacaoComanda, Id_produto,
-                     Quantidade, Valor_Unitario)
-                VALUES
-                    (@Movimentacao, @Produto, @Quantidade, @Valor);
-
-                SELECT CAST(SCOPE_IDENTITY() AS bigint);";
-
             using (var cn = new SqlConnection(Conexao))
-            using (var cmd = new SqlCommand(sql, cn))
+            using (var cmd = new SqlCommand("dbo.pr_AdicionarItem", cn))
             {
+                cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters
                     .Add("@Numero", SqlDbType.Int)
                     .Value = numero;
@@ -420,32 +283,17 @@ namespace ComandaFlow.Legacy
 
         public static ResultadoDto Fechar(int numero)
         {
-            const string sql = @"
-                UPDATE m
-                SET Status = 'F',
-                    DataFechamento = SYSDATETIME()
-                FROM dbo.Movimentacao_Comanda m
-                INNER JOIN dbo.Comanda c
-                    ON c.Id_comanda = m.Id_comanda
-                WHERE c.Numero = @Numero
-                  AND m.Status = 'A';
-
-                SELECT @@ROWCOUNT;";
-
             using (var cn = new SqlConnection(Conexao))
-            using (var cmd = new SqlCommand(sql, cn))
+            using (var cmd = new SqlCommand("dbo.pr_Fechar", cn))
             {
+                cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters
                     .Add("@Numero", SqlDbType.Int)
                     .Value = numero;
 
                 cn.Open();
 
-                if (Convert.ToInt32(cmd.ExecuteScalar()) == 0)
-                {
-                    throw new InvalidOperationException(
-                        "Comanda não está aberta.");
-                }
+                cmd.ExecuteScalar();
 
                 return new ResultadoDto
                 {
@@ -461,28 +309,10 @@ namespace ComandaFlow.Legacy
             int numero,
             bool disponivel)
         {
-            const string sql = @"
-                IF @Disponivel = 1
-                   AND EXISTS
-                   (
-                       SELECT 1
-                       FROM dbo.Movimentacao_Comanda m
-                       INNER JOIN dbo.Comanda c
-                           ON c.Id_comanda = m.Id_comanda
-                       WHERE c.Numero = @Numero
-                         AND m.Status = 'A'
-                   )
-                    THROW 50005,
-                          'Feche o atendimento antes de liberar a comanda.',
-                          1;
-
-                UPDATE dbo.Comanda
-                SET Disponivel = @Disponivel
-                WHERE Numero = @Numero;";
-
             using (var cn = new SqlConnection(Conexao))
-            using (var cmd = new SqlCommand(sql, cn))
+            using (var cmd = new SqlCommand("dbo.pr_AlterarDisponibilidade", cn))
             {
+                cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters
                     .Add("@Numero", SqlDbType.Int)
                     .Value = numero;
@@ -499,31 +329,10 @@ namespace ComandaFlow.Legacy
         {
             var lista = new List<AtendimentoDto>();
 
-            const string sql = @"
-                SELECT
-                    m.Id_MovimentacaoComanda,
-                    c.Numero,
-                    m.Status,
-                    m.DataAbertura,
-                    m.DataFechamento,
-                    COALESCE(SUM(i.Valor_Total), 0) AS Total
-                FROM dbo.Movimentacao_Comanda m
-                INNER JOIN dbo.Comanda c
-                    ON c.Id_comanda = m.Id_comanda
-                LEFT JOIN dbo.item_comanda i
-                    ON i.Id_MovimentacaoComanda =
-                       m.Id_MovimentacaoComanda
-                GROUP BY
-                    m.Id_MovimentacaoComanda,
-                    c.Numero,
-                    m.Status,
-                    m.DataAbertura,
-                    m.DataFechamento
-                ORDER BY m.DataAbertura DESC;";
-
             using (var cn = new SqlConnection(Conexao))
-            using (var cmd = new SqlCommand(sql, cn))
+            using (var cmd = new SqlCommand("dbo.pr_Historico", cn))
             {
+                cmd.CommandType = CommandType.StoredProcedure;
                 cn.Open();
 
                 using (var reader = cmd.ExecuteReader())

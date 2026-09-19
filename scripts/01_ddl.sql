@@ -1,4 +1,4 @@
-USE [selfservice_legacy];
+﻿USE [selfservice_legacy];
 GO
 
 SET ANSI_NULLS ON;
@@ -9,13 +9,6 @@ GO
 ------------------------------------------------------------
 -- Remove o modelo anterior na ordem inversa das dependencias.
 ------------------------------------------------------------
-IF OBJECT_ID(N'dbo.usp_AbrirComanda', N'P') IS NOT NULL
-BEGIN
-    DROP PROCEDURE dbo.usp_AbrirComanda;
-    PRINT 'Procedure dbo.usp_AbrirComanda removida.';
-END
-GO
-
 IF OBJECT_ID(N'dbo.item_comanda', N'U') IS NOT NULL
 BEGIN
     DROP TABLE dbo.item_comanda;
@@ -85,11 +78,14 @@ GO
 
 ALTER TABLE dbo.Movimentacao_Comanda ADD CONSTRAINT DF_Movimentacao_DataAbertura DEFAULT SYSDATETIME() FOR DataAbertura;
 GO
+
 ALTER TABLE dbo.Movimentacao_Comanda ADD CONSTRAINT DF_Movimentacao_Status DEFAULT 'A' FOR Status;
 GO
 
 -- Uma comanda fisica nao pode ter dois atendimentos abertos.
-CREATE UNIQUE INDEX UX_Movimentacao_Comanda_Aberta ON dbo.Movimentacao_Comanda (Id_comanda) WHERE Status = 'A';
+CREATE UNIQUE INDEX UX_Movimentacao_Comanda_Aberta ON dbo.Movimentacao_Comanda (Id_comanda)
+WHERE
+    Status = 'A';
 GO
 
 PRINT 'Tabela dbo.Movimentacao_Comanda criada com sucesso.';
@@ -114,6 +110,7 @@ GO
 
 ALTER TABLE dbo.produto ADD CONSTRAINT DF_produto_Permite DEFAULT 0 FOR Permite_Valor_Informado;
 GO
+
 ALTER TABLE dbo.produto ADD CONSTRAINT DF_produto_Ativo DEFAULT 1 FOR Ativo;
 GO
 
@@ -159,62 +156,6 @@ GO
 
 
 ------------------------------------------------------------
--- Abre uma comanda fisica escolhida pelo funcionario.
--- A verificacao e a reserva ficam na mesma transacao para
--- impedir duas entregas simultaneas do mesmo numero.
-------------------------------------------------------------
-CREATE PROCEDURE dbo.usp_AbrirComanda
-    @Numero int
-AS
-BEGIN
-    SET NOCOUNT ON;
-    SET XACT_ABORT ON;
-
-    BEGIN TRY
-        BEGIN TRANSACTION;
-
-        DECLARE @Id_comanda bigint;
-        DECLARE @Disponivel bit;
-
-        SELECT
-            @Id_comanda = Id_comanda,
-            @Disponivel = Disponivel
-        FROM dbo.Comanda WITH (UPDLOCK, HOLDLOCK, ROWLOCK)
-        WHERE Numero = @Numero;
-
-        IF @Id_comanda IS NULL
-            THROW 50001, 'Comanda não cadastrada.', 1;
-
-        IF @Disponivel = 0
-            THROW 50002, 'Comanda já está em uso.', 1;
-
-        UPDATE dbo.Comanda
-        SET Disponivel = 0
-        WHERE Id_comanda = @Id_comanda;
-
-        INSERT INTO dbo.Movimentacao_Comanda (Id_comanda, Status)
-        VALUES (@Id_comanda, 'A');
-
-        SELECT
-            CAST(SCOPE_IDENTITY() AS bigint) AS Id_MovimentacaoComanda,
-            @Numero AS Numero;
-
-        COMMIT TRANSACTION;
-    END TRY
-    BEGIN CATCH
-        IF @@TRANCOUNT > 0
-            ROLLBACK TRANSACTION;
-
-        THROW;
-    END CATCH
-END;
-GO
-
-PRINT 'Procedure dbo.usp_AbrirComanda criada com sucesso.';
-GO
-
-
-------------------------------------------------------------
 -- Ao fechar o atendimento, libera automaticamente o numero
 -- fisico correspondente. A trigger trata updates em lote.
 ------------------------------------------------------------
@@ -224,11 +165,16 @@ BEGIN
 
     IF UPDATE(Status)
     BEGIN
-        UPDATE c SET c.Disponivel = 1
-          FROM dbo.Comanda c
-          INNER JOIN inserted i ON i.Id_comanda = c.Id_comanda
-          INNER JOIN deleted d ON d.Id_MovimentacaoComanda = i.Id_MovimentacaoComanda
-         WHERE i.Status = 'F' AND d.Status <> 'F';
+        UPDATE c
+        SET
+            c.Disponivel = 1
+        FROM
+            dbo.Comanda c
+            INNER JOIN inserted i ON i.Id_comanda = c.Id_comanda
+            INNER JOIN deleted d ON d.Id_MovimentacaoComanda = i.Id_MovimentacaoComanda
+        WHERE
+            i.Status = 'F'
+        AND d.Status <> 'F';
     END
 END;
 GO
