@@ -162,7 +162,7 @@ BEGIN
     SET XACT_ABORT ON;
 
     BEGIN TRY
-        BEGIN TRANSACTION;            
+        BEGIN TRANSACTION;
             DECLARE @ComandaBloqueada bigint;
 
             SELECT
@@ -252,7 +252,7 @@ BEGIN
     SET XACT_ABORT ON;
 
     BEGIN TRY
-        BEGIN TRANSACTION;        
+        BEGIN TRANSACTION;
             DECLARE @ComandaBloqueada bigint;
 
             SELECT
@@ -308,8 +308,8 @@ BEGIN
     SET XACT_ABORT ON;
 
     BEGIN TRY
-        BEGIN TRANSACTION;     
-        
+        BEGIN TRANSACTION;
+
             DECLARE @ComandaBloqueada bigint;
 
             SELECT
@@ -505,7 +505,7 @@ BEGIN
     FROM
         dbo.Comanda
     WHERE
-        @Filtro = 'T'
+        (@Filtro = 'T')
      OR (@Filtro = 'D' AND Disponivel = 1)
      OR (@Filtro = 'U' AND Disponivel = 0)
     ORDER BY

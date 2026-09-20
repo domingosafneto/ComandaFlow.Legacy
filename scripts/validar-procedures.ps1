@@ -1,19 +1,37 @@
-﻿param([switch]$Aplicar)
-$ErrorActionPreference='Stop'
-$config=[xml](Get-Content "$PSScriptRoot/../ComandaFlow.Legacy/ConnectionStrings.config")
-$cn=[System.Data.SqlClient.SqlConnection]::new($config.connectionStrings.add.connectionString)
-try {
- $cn.Open()
- $tx=$cn.BeginTransaction()
- try {
-  $sql=[IO.File]::ReadAllText("$PSScriptRoot/03_procedures.sql")
-  foreach($batch in [regex]::Split($sql,'(?m)^GO\s*\r?$')) {
-   if([string]::IsNullOrWhiteSpace($batch)){continue}
-   $cmd=$cn.CreateCommand(); $cmd.Transaction=$tx; $cmd.CommandText=$batch
-   [void]$cmd.ExecuteNonQuery(); $cmd.Dispose()
-  }
-  $cmd=$cn.CreateCommand(); $cmd.Transaction=$tx
-  $cmd.CommandText=@"
+﻿param(
+    [switch]$Aplicar
+)
+
+$ErrorActionPreference = 'Stop'
+$config = [xml](Get-Content "$PSScriptRoot/../ComandaFlow.Legacy/ConnectionStrings.config")
+$cn = [System.Data.SqlClient.SqlConnection]::new($config.connectionStrings.add.connectionString)
+
+try
+{
+    $cn.Open()
+    $tx = $cn.BeginTransaction()
+
+    try
+    {
+        $sql = [IO.File]::ReadAllText("$PSScriptRoot/03_procedures.sql")
+
+        foreach ($batch in [regex]::Split($sql, '(?m)^GO\s*\r?$'))
+        {
+            if ([string]::IsNullOrWhiteSpace($batch))
+            {
+                continue
+            }
+
+            $cmd = $cn.CreateCommand()
+            $cmd.Transaction = $tx
+            $cmd.CommandText = $batch
+            [void]$cmd.ExecuteNonQuery()
+            $cmd.Dispose()
+        }
+
+        $cmd = $cn.CreateCommand()
+        $cmd.Transaction = $tx
+        $cmd.CommandText = @"
 SAVE TRANSACTION TesteProcedures;
 DECLARE @Numero int = 2147483647;
 WHILE EXISTS (
@@ -95,19 +113,53 @@ WHERE
     Id_produto = @Excluir;
 ROLLBACK TRANSACTION TesteProcedures;
 "@
-  [void]$cmd.ExecuteNonQuery(); $cmd.Dispose()
-  # Valida o SQL parametrizado realmente utilizado pelo Web Forms.
-  $dados=[IO.File]::ReadAllText("$PSScriptRoot/../ComandaFlow.Legacy/Dados.cs")
-  $consultas=[regex]::Matches($dados, 'const string sql = @"([\s\S]*?)";')
-  if($consultas.Count -ne 1){throw 'Esperada somente a exclusao simples no Dados.cs.'}
-  foreach($consulta in $consultas){
-   $cmd=$cn.CreateCommand(); $cmd.Transaction=$tx; $cmd.CommandText=$consulta.Groups[1].Value
-   [void]$cmd.Parameters.AddWithValue('@Ativos', $false)
-   [void]$cmd.Parameters.AddWithValue('@Filtro', 'T')
-   [void]$cmd.Parameters.AddWithValue('@Numero', -1)
-   [void]$cmd.Parameters.AddWithValue('@Id', [long]-1)
-   [void]$cmd.ExecuteNonQuery(); $cmd.Dispose()
-  }
-  if($Aplicar){$tx.Commit(); 'Procedures aplicadas; teste funcional revertido.'}else{$tx.Rollback(); 'Procedures compiladas e fluxo funcional validado; transacao revertida.'}
- }catch{if($tx.Connection){$tx.Rollback()}; throw}
-}finally{$cn.Dispose()}
+        [void]$cmd.ExecuteNonQuery()
+        $cmd.Dispose()
+
+        # Valida o SQL parametrizado realmente utilizado pelo Web Forms.
+        $dados = [IO.File]::ReadAllText("$PSScriptRoot/../ComandaFlow.Legacy/Dados.cs")
+        $consultas = [regex]::Matches($dados, 'const string sql = @"([\s\S]*?)";')
+
+        if ($consultas.Count -ne 1)
+        {
+            throw 'Esperada somente a exclusao simples no Dados.cs.'
+        }
+
+        foreach ($consulta in $consultas)
+        {
+            $cmd = $cn.CreateCommand()
+            $cmd.Transaction = $tx
+            $cmd.CommandText = $consulta.Groups[1].Value
+            [void]$cmd.Parameters.AddWithValue('@Ativos', $false)
+            [void]$cmd.Parameters.AddWithValue('@Filtro', 'T')
+            [void]$cmd.Parameters.AddWithValue('@Numero', -1)
+            [void]$cmd.Parameters.AddWithValue('@Id', [long]-1)
+            [void]$cmd.ExecuteNonQuery()
+            $cmd.Dispose()
+        }
+
+        if ($Aplicar)
+        {
+            $tx.Commit()
+            'Procedures aplicadas; teste funcional revertido.'
+        }
+        else
+        {
+            $tx.Rollback()
+            'Procedures compiladas e fluxo funcional validado; transacao revertida.'
+        }
+    }
+    catch
+    {
+        if ($tx.Connection)
+        {
+            $tx.Rollback()
+        }
+
+        throw
+    }
+}
+finally
+{
+    $cn.Dispose()
+}

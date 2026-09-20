@@ -1,1 +1,6 @@
-namespace ComandaFlow.Legacy { public partial class Comandas { } }
+namespace ComandaFlow.Legacy
+{
+    public partial class Comandas
+    {
+    }
+}

@@ -1,1 +1,25 @@
-namespace ComandaFlow.Legacy { public partial class Produtos { protected global::System.Web.UI.WebControls.Label Mensagem; protected global::System.Web.UI.WebControls.Literal TituloFormulario; protected global::System.Web.UI.WebControls.HiddenField ProdutoId; protected global::System.Web.UI.WebControls.TextBox Descricao; protected global::System.Web.UI.WebControls.TextBox Valor; protected global::System.Web.UI.WebControls.CheckBox PermiteValor; protected global::System.Web.UI.WebControls.CheckBox Ativo; protected global::System.Web.UI.WebControls.Button Salvar; protected global::System.Web.UI.WebControls.Button Cancelar; protected global::System.Web.UI.WebControls.Repeater Lista; } }
+namespace ComandaFlow.Legacy
+{
+    public partial class Produtos
+    {
+        protected global::System.Web.UI.WebControls.Label Mensagem;
+
+        protected global::System.Web.UI.WebControls.Literal TituloFormulario;
+
+        protected global::System.Web.UI.WebControls.HiddenField ProdutoId;
+
+        protected global::System.Web.UI.WebControls.TextBox Descricao;
+
+        protected global::System.Web.UI.WebControls.TextBox Valor;
+
+        protected global::System.Web.UI.WebControls.CheckBox PermiteValor;
+
+        protected global::System.Web.UI.WebControls.CheckBox Ativo;
+
+        protected global::System.Web.UI.WebControls.Button Salvar;
+
+        protected global::System.Web.UI.WebControls.Button Cancelar;
+
+        protected global::System.Web.UI.WebControls.Repeater Lista;
+    }
+}

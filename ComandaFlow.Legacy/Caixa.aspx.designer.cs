@@ -1,1 +1,6 @@
-namespace ComandaFlow.Legacy { public partial class Caixa { } }
+namespace ComandaFlow.Legacy
+{
+    public partial class Caixa
+    {
+    }
+}

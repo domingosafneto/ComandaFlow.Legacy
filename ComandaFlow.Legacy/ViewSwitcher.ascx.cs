@@ -11,11 +11,23 @@ namespace ComandaFlow.Legacy
 {
     public partial class ViewSwitcher : System.Web.UI.UserControl
     {
-        protected string CurrentView { get; private set; }
+        protected string CurrentView
+        {
+            get;
+            private set;
+        }
 
-        protected string AlternateView { get; private set; }
+        protected string AlternateView
+        {
+            get;
+            private set;
+        }
 
-        protected string SwitchUrl { get; private set; }
+        protected string SwitchUrl
+        {
+            get;
+            private set;
+        }
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -35,7 +47,11 @@ namespace ComandaFlow.Legacy
                 this.Visible = false;
                 return;
             }
-            var url = GetRouteUrl(switchViewRouteName, new { view = AlternateView, __FriendlyUrls_SwitchViews = true });
+            var url = GetRouteUrl(switchViewRouteName, new
+            {
+                view = AlternateView,
+                __FriendlyUrls_SwitchViews = true
+            });
             url += "?ReturnUrl=" + HttpUtility.UrlEncode(Request.RawUrl);
             SwitchUrl = url;
         }

@@ -16,4 +16,3 @@ ELSE
         PRINT 'Banco selfservice_legacy ja existe.';
     END
 GO
-

@@ -1,1 +1,6 @@
-namespace ComandaFlow.Legacy { public partial class Movimentacoes { } }
+namespace ComandaFlow.Legacy
+{
+    public partial class Movimentacoes
+    {
+    }
+}
