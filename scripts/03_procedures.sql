@@ -499,7 +499,7 @@ BEGIN
     IF @Filtro IS NULL OR @Filtro = '' SET @Filtro = 'T';
 
     SELECT
-        Id_comanda,
+        Id_comanda as IdComanda,
         Numero,
         Disponivel
     FROM
