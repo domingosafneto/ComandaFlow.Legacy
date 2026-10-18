@@ -548,3 +548,31 @@ GO
 
 PRINT 'Procedure dbo.pr_ListarProdutos criada ou atualizada com sucesso.';
 GO
+
+
+------------------------------------------------------------
+-- Consulta uma comanda fisica pelo identificador interno.
+-- Retorna seus dados e a situacao de disponibilidade.
+------------------------------------------------------------
+IF OBJECT_ID(N'dbo.pr_ObterComandaPorId', N'P') IS NULL
+    EXEC(N'CREATE PROCEDURE dbo.pr_ObterComandaPorId AS BEGIN SET NOCOUNT ON; END');
+GO
+ALTER PROCEDURE dbo.pr_ObterComandaPorId
+    @IdComanda bigint
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        Id_comanda AS IdComanda,
+        Numero,
+        Disponivel
+    FROM
+        dbo.Comanda
+    WHERE
+        Id_comanda = @IdComanda;
+END;
+GO
+
+PRINT 'Procedure dbo.pr_ObterComandaPorId criada ou atualizada com sucesso.';
+GO
